@@ -129,63 +129,11 @@
                 //     }
                 // },
                 usersync: {
-                    userIds: [{
-                        name: "unifiedId",
-                        params: {
-                            partner: "prebid",
-                            url: "http://match.adsrvr.org/track/rid?ttd_pid=prebid&fmt=json"
-                        },
-                        storage: {
-                            type: "html5",
-                            name: "unifiedid",
-                            expires: 30
-                        },
-                    }, {
-                        name: "id5Id",
-                        params: {
-                            partner: 173 //Set your real ID5 partner ID here for production, please ask for one at http://id5.io/prebid
-                        },
-                        storage: {
-                            type: "cookie",
-                            name: "id5id",
-                            expires: 90,
-                            refreshInSeconds: 8*3600 // Refresh frequency of cookies, defaulting to 'expires'
-                        },
-
-                    }, {
-                        name: "parrableId",
-                        params: {
-                            // change to Parrable Partner Client ID(s) you received from the Parrable Partners you are using
-                            partner: '30182847-e426-4ff9-b2b5-9ca1324ea09b'
-                        },
-                        storage: {
-                            type: "cookie",
-                            name: "_parrable_eid", // create a cookie with this name
-                            expires: 365           // cookie can last for a year
-                        }
-                    }, {
-                        name: "pubCommonId",
-                        storage: {
-                            type: "cookie",
-                            name: "pubcid",
-                            expires: 365
-                        },
-                        // value: {
-                        //     foo: '9879878907987',
-                        //     bar:'93939'
-                        // }
-                    },  {
-                      name: 'identityLink',
-                      params: {
-                        pid: '14' // Set your real identityLink placement ID here
-                      },
-                      storage: {
-                        type: 'cookie',
-                        name: 'idl_env',
-                        expires: 30
-                      }
-                    }, {
+                    userIds: [ {
                       name: "sharedId",
+                      params: {
+                        cookie_name: 'sharedid'
+                      },
                       storage: {
                         type: "cookie",
                         name: "sharedid",
@@ -238,10 +186,69 @@
             googletag.enableServices();
         });
     </script>
+
+    <script>
+      function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+          }
+        }
+        return "";
+      }
+
+      function checkCookie() {
+        var user=getCookie("sharedid");
+        var cookieValue = document.getElementById("cookie");
+
+        if (user != "") {
+          cookieValue.textContent = "SharedID Cookie Value :" + user;
+        } else {
+          cookieValue.textContent = "SharedID Cookie doesn't exist or empty"
+        }
+
+        var promise = document.requestStorageAccess();
+        promise.then(
+          function () {
+            var message = document.getElementById("message");
+            message.textContent = "Thank you. Access Granted."
+          },
+          function () {
+            var message = document.getElementById("message");
+            message.textContent = "No access."
+          }
+        );
+      }
+    </script>
 </head>
 
-<body>
-<h2>Rubicon Project Prebid</h2>
+<body onload="checkCookie()">
+<h2 >Rubicon Project Prebid</h2>
+<h4 id="cookie"></h4>
+<script>
+  function makeRequestWithUserGesture() {
+    var promise = document.requestStorageAccess();
+    promise.then(
+      function () {
+        var message = document.getElementById("message");
+        message.textContent = "Thank you. Access Granted."
+      },
+      function () {
+        var message = document.getElementById("message");
+        message.textContent = "No access."
+      }
+    );
+  }
+</script>
+<button onclick="makeRequestWithUserGesture()">Play video</button>
+<p id="message">Checking storage access...</p>
 
 <div id='test-div'>
     <script>

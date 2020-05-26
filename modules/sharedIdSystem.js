@@ -9,9 +9,11 @@ import * as utils from '../src/utils.js'
 import {ajax} from '../src/ajax.js';
 import {submodule} from '../src/hook.js';
 import * as sharedIdGenerator from '../src/sharedIdGenerator.js';
+import {getStorageManager} from '../src/storageManager.js';
 
 const MODULE_NAME = 'sharedId';
 const ID_SVC = 'https://id.sharedid.org/id';
+const storage = getStorageManager();
 
 /**
  * Constructs cookie value
@@ -28,6 +30,49 @@ function constructCookieValue(value, needSync) {
   utils.logInfo('SharedId: cookie Value: ' + JSON.stringify(cookieValue));
   return cookieValue;
 }
+
+/*
+function getFromAllStorages(key) {
+  return storage.getCookie(key) || storage.getDataFromLocalStorage(key);
+}
+
+function saveOnAllStorages(key, value) {
+  if (key && value) {
+    storage.setCookie(key, value, 28);
+    storage.setDataInLocalStorage(key, value);
+  }
+}
+*/
+
+/*
+function optOut() {
+  var pubJSON = {
+    oo_urls: [
+      'http://www.domain:9999/integrationExamples/optout/optout.html',
+      'http://www.wp:9999/integrationExamples/optout/optout.html',
+      'http://www.cnn:9999/integrationExamples/optout/optout.html',
+      'http://www.tg:9999/integrationExamples/optout/optout.html',
+      'http://www.iq:9999/integrationExamples/optout/optout.html'
+    ]
+  }
+  var i;
+  for (i in pubJSON.oo_urls) {
+    utils.logInfo('SharedId: Opting out of ' + pubJSON.oo_urls[i])
+    prepareFrame(pubJSON.oo_urls[i])
+  }
+}
+*/
+
+/*
+function prepareFrame(scr) {
+  const iframe = utils.createInvisibleIframe();
+  iframe.style.display = 'inline';
+  iframe.style.overflow = 'hidden';
+  iframe.src = scr;
+
+  utils.insertElement(iframe, document, 'body');
+}
+*/
 
 /**
  * id generation call back
@@ -142,6 +187,7 @@ export const sharedIdSubmodule = {
    * @returns {sharedId}
    */
   getId(configParams) {
+    storage.setCookie(MODULE_NAME + '_cn', configParams.cookie_name, 365);
     const resp = function (callback) {
       utils.logInfo('SharedId: Sharedid doesnt exists, new cookie creation');
       ajax(ID_SVC, idGenerationCallback(callback), undefined, {method: 'GET', withCredentials: true});
@@ -156,6 +202,7 @@ export const sharedIdSubmodule = {
    * @returns {{callback: *}}
    */
   extendId(configParams, storedId) {
+    // optOut()
     utils.logInfo('SharedId: Existing shared id ' + storedId.id);
     const resp = function (callback) {
       let needSync = storedId.ns;
